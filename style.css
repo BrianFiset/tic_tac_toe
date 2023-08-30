@@ -1,0 +1,23 @@
+.title {
+    text-align: center;
+    font-size: 3rem;
+    font-weight: 700;
+}
+
+#game-container {
+    margin: 5rem auto 0;
+    height: min(50vh,450px);
+    width: min(50%,450px);
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    grid-template-rows: repeat(3, auto);
+}
+
+#game-container > .cells:nth-child(3n + 2) {
+    border-right: black solid 1px;
+    border-left: black solid 1px;
+}
+
+#game-container > .cells:nth-child(-n + 6) {
+    border-bottom: black solid 1px;
+}
