@@ -1,25 +1,49 @@
-const Player = (name, marker, win) => {
-    return{name, marker, win};
+const Player = (name, marker, ai) => {
+    return{name, marker, win: false, ai: ai};
 };
 
-const player1 = Player('Player 1', 'X',false);
-const player2 = Player('Player 2', 'O',false);
+const player1 = Player('Player 1', 'X');
+const player2 = Player('Player 2', 'O', 'easy');
 
 const gameBoard = (() => {
-    let turn = player1;
+    let playerTurn = player1;
     const cells = document.querySelectorAll('.cells');
     cells.forEach(cell => cell.addEventListener('click', (e) => {
         if(e.target.innerText !== '' || player1.win || player2.win){
             return
-        } if(turn === player1) {
+        } if(playerTurn === player1) {
             e.target.innerText = `${player1.marker}`;
-            turn = player2;
-        } else if(turn === player2){
+            playerTurn = player2;
+            gameLogic.win();
+            if(player1.win || player2.win) return
+            if(player2.ai === 'easy'){
+                gameAi.easyMode();
+                playerTurn = player1;
+            };
+        } else if(playerTurn === player2){
+            console.log(playerTurn)
             e.target.innerText = `${player2.marker}`;
-            turn = player1;
+            playerTurn = player1;
         };
     }));
+    return{cells, playerTurn}
 })();
+
+const gameAi = (() => {
+    const cellsArray = Array.prototype.slice.call(gameBoard.cells);
+    const randomNumber = (x) => {
+        return Math.floor(Math.random() * x);
+    }
+    const easyMode = () => {
+        const emptyCells = cellsArray.filter(cell => cell.innerText === '');
+        if(emptyCells.length === 0) return
+        emptyCells[randomNumber(emptyCells.length)].innerText = player2.marker;
+        gameLogic.win();
+    }
+
+    return{easyMode}
+})()
+
 
 const gameLogic = (() => {
     const cells = document.querySelectorAll('.cells');
@@ -31,13 +55,21 @@ const gameLogic = (() => {
         return array.every(element => element === x);
     };
 
-    const tie = () => {
-        const cellsArray = [
+    const randomNumber = (number) => {
+        return Math.floor(Math.random() * number)
+    };
+
+    const cellsArray = () => {
+        const cellArray = [
             cells[0].innerText,cells[1].innerText,cells[2].innerText,
             cells[3].innerText,cells[4].innerText,cells[5].innerText,
             cells[6].innerText,cells[7].innerText,cells[8].innerText
         ];
-        return cellsArray.every(element => (element === player1.marker || element === player2.marker));
+        return cellArray
+    }
+
+    const tie = () => {
+        return cellsArray().every(element => (element === player1.marker || element === player2.marker));
     };
 
     const gameOver = () =>{
@@ -86,5 +118,5 @@ const gameLogic = (() => {
             };
         };
     };
-    document.querySelector('#game-container').addEventListener('click', win);
+    return {cellsArray,allElementsSame, randomNumber, win}
 })();
